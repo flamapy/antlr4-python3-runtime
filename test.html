@@ -10,10 +10,16 @@
         await pyodide.loadPackage("micropip");
         const micropip = pyodide.pyimport("micropip");
 		
-        await micropip.install("https://flamapy.github.io/antlr4-python3-runtime/dist/antlr4_python3_runtime-4.7.2-py3-none-any.whl");
+        await micropip.install("http://localhost:8080/dist/antlr4_python3_runtime-4.7.2-py3-none-any.whl");
         await micropip.install("uvlparser");
+        await micropip.install("flamapy-fm");
+        await micropip.install("flamapy-sat");
+		packages=micropip.freeze();
+		console.log(packages);
+
       }
-      main();
+      main()
+
     </script>
   </body>
 </html>
