@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.3/full/pyodide.js"></script>
+    <script type="text/javascript">
+      async function main() {
+        let pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        const micropip = pyodide.pyimport("micropip");
+		
+        await micropip.install("https://github.com/flamapy/antlr4-python3-runtime/raw/main/dist/antlr4_python3_runtime-4.7.2-py3-none-any.whl");
+        await micropip.install("uvlparser");
+      }
+      main();
+    </script>
+  </body>
+</html>
