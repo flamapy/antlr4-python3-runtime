@@ -4,7 +4,8 @@
   </head>
   <body>
 	<div>
-		<textarea id="uvlfile" placeholder="namespace Pizza
+		<textarea id="uvlfile" style="width: 100%;" rows="20">
+namespace Pizza
 
 features
 	Pizza {abstract}	
@@ -27,12 +28,13 @@ features
 			CheesyCrust
 
 constraints
-	CheesyCrust => Big" style="width: 100%;" rows="20"></textarea>
+	CheesyCrust => Big"
+		</textarea>
 		<button onclick="evaluateUVL()">Get products</button>
 	</div>
 	<div id="result"></div>
 	
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.3/full/pyodide.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <script type="text/javascript">
 	  const uvlfile = document.getElementById("uvlfile");
 
@@ -45,7 +47,10 @@ constraints
         await micropip.install("uvlparser");
         await micropip.install("flamapy-fm");
         await micropip.install("flamapy-sat");
-		
+		await pyodide.runPythonAsync(`
+import micropip
+await micropip.install("flamapy-fm-dist", deps=False)#this is to avoid problems with deps later on
+`)
 		try {
           let output = pyodide.runPython(
 		  `
@@ -57,9 +62,13 @@ div = js.document.createElement("result")
 with open("uvlfile.uvl", "w") as text_file:
     print(file_content, file=text_file)
 
-from flamapy.core.discover import DiscoverMetamodels 
-dm = DiscoverMetamodels()
-result = str(dm.use_operation_from_file("Products", "./uvlfile.uvl"))
+#from flamapy.core.discover import DiscoverMetamodels 
+#dm = DiscoverMetamodels()
+#result = str(dm.use_operation_from_file("Products", "./uvlfile.uvl"))
+from flamapy.interfaces.python.FLAMAFeatureModel import FLAMAFeatureModel
+
+fm = FLAMAFeatureModel("uvlfile.uvl")
+result=fm.products()
 
 div.innerHTML = result
 js.document.body.append(div)
