@@ -3,9 +3,40 @@
     <meta charset="utf-8" />
   </head>
   <body>
+	<div>
+		<textarea id="uvlfile" placeholder="namespace Pizza
+
+features
+	Pizza {abstract}	
+		mandatory
+			Topping	
+				or
+					Salami
+					Ham
+					Mozzarella
+			Size	
+				alternative
+					Normal
+					Big
+			Dough	
+				alternative
+					Neapolitan
+					Sicilian
+
+		optional
+			CheesyCrust
+
+constraints
+	CheesyCrust => Big" style="width: 100%;" rows="20"></textarea>
+		<button onclick="evaluateUVL()">Get products</button>
+	</div>
+	<div id="result"></div>
+	
     <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.23.3/full/pyodide.js"></script>
     <script type="text/javascript">
-      async function main() {
+	  const uvlfile = document.getElementById("uvlfile");
+
+	  async function evaluateUVL() {
         let pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         const micropip = pyodide.pyimport("micropip");
@@ -14,12 +45,37 @@
         await micropip.install("uvlparser");
         await micropip.install("flamapy-fm");
         await micropip.install("flamapy-sat");
-		packages=micropip.freeze();
-		console.log(packages);
+		
+		try {
+          let output = pyodide.runPython(
+		  `
+import js
+
+file_content = js.document.getElementById('uvlfile').value
+div = js.document.createElement("result")
+
+with open("uvlfile.uvl", "w") as text_file:
+    print(file_content, file=text_file)
+
+from flamapy.core.discover import DiscoverMetamodels 
+dm = DiscoverMetamodels()
+result = str(dm.use_operation_from_file("Products", "./uvlfile.uvl"))
+
+div.innerHTML = result
+js.document.body.append(div)
+		  `);
+		  console.log(output)
+        } catch (err) {
+          console.log(err);
+        }
+			
 
       }
-      main()
+		
+
+      
 
     </script>
+
   </body>
 </html>
